@@ -1,9 +1,15 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.NovaTrack" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.NovaTrack" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary_blue</item>
+        <item name="colorPrimaryDark">@color/primary_blue</item>
+        <item name="colorAccent">@color/primary_blue</item>
+        <item name="android:windowBackground">@color/background_light</item>
+        <item name="android:statusBarColor">@color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.NovaTrack" parent="Base.Theme.NovaTrack" />
+    <style name="Theme.NovaTrack.Splash" parent="Theme.NovaTrack">
+        <item name="android:windowFullscreen">false</item>
+    </style>
 </resources>

@@ -1,24 +1,41 @@
 package com.example.novatrack;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
+import android.widget.Button;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.example.novatrack.utils.StatusBarHelper;
 
 public class MainActivity extends AppCompatActivity {
+
+    private TextView welcomeText;
+    private Button logoutButton;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        StatusBarHelper.setTransparentStatusBar(this, true);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        welcomeText = findViewById(R.id.welcomeText);
+        logoutButton = findViewById(R.id.logoutButton);
+
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            welcomeText.setText("Welcome, " + user.getEmail());
+        }
+
+        logoutButton.setOnClickListener(v -> {
+            mAuth.signOut();
+            startActivity(new Intent(MainActivity.this, SignInActivity.class));
+            finish();
         });
     }
 }
