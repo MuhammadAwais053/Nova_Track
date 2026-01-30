@@ -51,4 +51,6 @@
     <string name="create_tasks">Create tasks and assign timeline</string>
     <string name="recommend_resources">Recommend resources</string>
     <string name="let_action_begin">Let the action begin</string>
+    <string name="send">Send</string>
+    <string name="type_a_message">Type a message...</string>
 </resources>
