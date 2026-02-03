@@ -8,7 +8,6 @@ import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -34,97 +33,74 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_signup);
 
-        try {
-            setContentView(R.layout.activity_signup);
+        StatusBarHelper.setTransparentStatusBar(this, true);
 
-            StatusBarHelper.setTransparentStatusBar(this, true);
+        mAuth = FirebaseAuth.getInstance();
 
-            mAuth = FirebaseAuth.getInstance();
+        fullNameInput = findViewById(R.id.fullNameInput);
+        emailInput = findViewById(R.id.emailInput);
+        passwordInput = findViewById(R.id.passwordInput);
+        confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
+        signUpButton = findViewById(R.id.signUpButton);
+        signInText = findViewById(R.id.signInText);
+        passwordToggle = findViewById(R.id.passwordToggle);
+        confirmPasswordToggle = findViewById(R.id.confirmPasswordToggle);
 
-            fullNameInput = findViewById(R.id.fullNameInput);
-            emailInput = findViewById(R.id.emailInput);
-            passwordInput = findViewById(R.id.passwordInput);
-            confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
-            signUpButton = findViewById(R.id.signUpButton);
-            signInText = findViewById(R.id.signInText);
-            passwordToggle = findViewById(R.id.passwordToggle);
-            confirmPasswordToggle = findViewById(R.id.confirmPasswordToggle);
+        setupPasswordToggles();
+        setupSignInText();
 
-            if (passwordToggle == null || confirmPasswordToggle == null) {
-                Log.e("SignUpActivity", "Password toggle views are null!");
-                Toast.makeText(this, "Layout error, please check resources", Toast.LENGTH_LONG).show();
-                finish();
-                return;
-            }
-
-            setupPasswordToggles();
-            setupSignInText();
-
-            signUpButton.setOnClickListener(v -> signUpUser());
-
-        } catch (Exception e) {
-            Log.e("SignUpActivity", "Error in onCreate: " + e.getMessage(), e);
-            Toast.makeText(this, "Error loading sign up screen: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
-        }
+        signUpButton.setOnClickListener(v -> signUpUser());
     }
 
     private void setupPasswordToggles() {
-        try {
-            passwordToggle.setOnClickListener(v -> {
-                if (isPasswordVisible) {
-                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                    passwordToggle.setImageResource(R.drawable.ic_visibility_off);
-                } else {
-                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                    passwordToggle.setImageResource(R.drawable.ic_visibility);
-                }
-                isPasswordVisible = !isPasswordVisible;
-                passwordInput.setSelection(passwordInput.getText().length());
-            });
+        passwordToggle.setOnClickListener(v -> {
+            if (isPasswordVisible) {
+                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                passwordToggle.setImageResource(R.drawable.ic_visibility_off);
+            } else {
+                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                passwordToggle.setImageResource(R.drawable.ic_visibility);
+            }
+            isPasswordVisible = !isPasswordVisible;
+            passwordInput.setSelection(passwordInput.getText().length());
+        });
 
-            confirmPasswordToggle.setOnClickListener(v -> {
-                if (isConfirmPasswordVisible) {
-                    confirmPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                    confirmPasswordToggle.setImageResource(R.drawable.ic_visibility_off);
-                } else {
-                    confirmPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                    confirmPasswordToggle.setImageResource(R.drawable.ic_visibility);
-                }
-                isConfirmPasswordVisible = !isConfirmPasswordVisible;
-                confirmPasswordInput.setSelection(confirmPasswordInput.getText().length());
-            });
-        } catch (Exception e) {
-            Log.e("SignUpActivity", "Error setting up password toggles: " + e.getMessage(), e);
-        }
+        confirmPasswordToggle.setOnClickListener(v -> {
+            if (isConfirmPasswordVisible) {
+                confirmPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                confirmPasswordToggle.setImageResource(R.drawable.ic_visibility_off);
+            } else {
+                confirmPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                confirmPasswordToggle.setImageResource(R.drawable.ic_visibility);
+            }
+            isConfirmPasswordVisible = !isConfirmPasswordVisible;
+            confirmPasswordInput.setSelection(confirmPasswordInput.getText().length());
+        });
     }
 
     private void setupSignInText() {
-        try {
-            String text = "Already have account? Sign In";
-            SpannableString spannableString = new SpannableString(text);
+        String text = "Already have account? Sign In";
+        SpannableString spannableString = new SpannableString(text);
 
-            ClickableSpan clickableSpan = new ClickableSpan() {
-                @Override
-                public void onClick(@NonNull View widget) {
-                    finish();
-                }
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                finish();
+            }
 
-                @Override
-                public void updateDrawState(@NonNull TextPaint ds) {
-                    super.updateDrawState(ds);
-                    ds.setColor(getResources().getColor(R.color.primary_blue));
-                    ds.setUnderlineText(false);
-                }
-            };
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(getResources().getColor(R.color.primary_blue));
+                ds.setUnderlineText(false);
+            }
+        };
 
-            spannableString.setSpan(clickableSpan, 23, 30, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            signInText.setText(spannableString);
-            signInText.setMovementMethod(LinkMovementMethod.getInstance());
-        } catch (Exception e) {
-            Log.e("SignUpActivity", "Error setting up sign in text: " + e.getMessage(), e);
-        }
+        spannableString.setSpan(clickableSpan, 23, 30, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        signInText.setText(spannableString);
+        signInText.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private void signUpUser() {
@@ -157,17 +133,12 @@ public class SignUpActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
-
                         Intent intent = new Intent(SignUpActivity.this, ProjectDashboardActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
                     } else {
-                        String errorMessage = "Registration failed";
-                        if (task.getException() != null) {
-                            errorMessage = task.getException().getMessage();
-                        }
-                        Toast.makeText(SignUpActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                        Toast.makeText(SignUpActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

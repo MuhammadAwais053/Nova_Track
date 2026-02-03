@@ -1,6 +1,9 @@
 package com.example.novatrack;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,18 +13,24 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.novatrack.adapters.ProjectAdapter;
+import com.example.novatrack.models.Project;
+import com.example.novatrack.utils.StatusBarHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.example.novatrack.adapters.ProjectAdapter;
-import com.example.novatrack.models.Project;
-import com.example.novatrack.utils.StatusBarHelper;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ProjectDashboardActivity extends AppCompatActivity {
@@ -104,8 +113,7 @@ public class ProjectDashboardActivity extends AppCompatActivity {
     private void setupSearchFunctionality() {
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -113,8 +121,7 @@ public class ProjectDashboardActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-            }
+            public void afterTextChanged(Editable s) { }
         });
     }
 
@@ -150,8 +157,12 @@ public class ProjectDashboardActivity extends AppCompatActivity {
                             Project project = doc.toObject(Project.class);
                             project.setId(doc.getId());
                             projectList.add(project);
+
+                            // Schedule notification for this project
+                            scheduleProjectReminders(project);
                         }
                     }
+
                     filteredProjectList.clear();
                     filteredProjectList.addAll(projectList);
                     projectAdapter.notifyDataSetChanged();
@@ -174,13 +185,9 @@ public class ProjectDashboardActivity extends AppCompatActivity {
         builder.setTitle(project.getTitle());
 
         String[] options = {"Edit", "Delete"};
-
         builder.setItems(options, (dialog, which) -> {
-            if (which == 0) {
-                editProject(project);
-            } else if (which == 1) {
-                confirmDeleteProject(project);
-            }
+            if (which == 0) editProject(project);
+            else if (which == 1) confirmDeleteProject(project);
         });
 
         builder.setNegativeButton("Cancel", null);
@@ -211,12 +218,50 @@ public class ProjectDashboardActivity extends AppCompatActivity {
         db.collection("projects")
                 .document(project.getId())
                 .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Project deleted", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to delete project", Toast.LENGTH_SHORT).show();
-                });
+                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Project deleted", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete project", Toast.LENGTH_SHORT).show());
+    }
+
+    // ======== NOTIFICATIONS ========
+
+    private void scheduleProjectNotification(String title, String message, long triggerAtMillis) {
+        Intent intent = new Intent(this, NotificationReceiver.class);
+        intent.putExtra("notification_title", title);
+        intent.putExtra("notification_text", message);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this,
+                (int) System.currentTimeMillis(), // unique request code
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+        }
+    }
+
+    private void scheduleProjectReminders(Project project) {
+        long dueMillis = getMillisFromDueDate(project.getDueDate());
+        if (dueMillis > System.currentTimeMillis()) { // only schedule future notifications
+            String title = "Project Reminder";
+            String message = "Your project \"" + project.getTitle() + "\" is due soon!";
+            scheduleProjectNotification(title, message, dueMillis);
+        }
+    }
+
+    // Convert project due date String to milliseconds
+    private long getMillisFromDueDate(String dueDate) {
+        // Example format: "2026-02-01 15:30"
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        try {
+            Date date = sdf.parse(dueDate);
+            if (date != null) return date.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     @Override

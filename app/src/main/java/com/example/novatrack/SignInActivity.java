@@ -114,17 +114,17 @@ public class SignInActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Toast.makeText(SignInActivity.this, "Sign in successful", Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(SignInActivity.this, ProjectDashboardActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        // Start HomeActivity
+                        Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
                         startActivity(intent);
+
+                        // Optional: Close SignInActivity so user can't go back
                         finish();
                     } else {
-                        String errorMessage = "Authentication failed";
-                        if (task.getException() != null) {
-                            errorMessage = task.getException().getMessage();
-                        }
-                        Toast.makeText(SignInActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                        Toast.makeText(SignInActivity.this, "Authentication failed: "
+                                + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+
     }
 }

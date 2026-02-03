@@ -23,7 +23,7 @@
             android:layout_marginTop="70dp"
             android:layout_marginBottom="35dp"
             android:gravity="center"
-            android:text="Hi, Username"
+            android:text="Welcome!"
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold"
@@ -135,6 +135,7 @@
             android:useDefaultMargins="true">
 
             <Button
+                android:id="@+id/btnProject"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"

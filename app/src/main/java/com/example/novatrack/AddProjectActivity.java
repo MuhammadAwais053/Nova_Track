@@ -92,8 +92,58 @@ public class AddProjectActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
         dueDateInput.setText(sdf.format(selectedDate.getTime()));
     }
+    private void setProjectAlarms(String title) {
 
-    private void saveProject() {
+            int code1 = title.hashCode();
+            int code2 = title.hashCode() + 1;
+            int code3 = title.hashCode() + 2;
+
+            // Tomorrow reminder
+            long tomorrow = System.currentTimeMillis() + (24 * 60 * 60 * 1000);
+            Alarm.setAlarm(
+                    this,
+                    tomorrow,
+                    "NovaTrack Reminder",
+                    "You have pending projects to work on!",
+                    code1
+            );
+
+            // 7 PM reminder
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 19);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+
+            if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+            }
+
+            Alarm.setAlarm(
+                    this,
+                    calendar.getTimeInMillis(),
+                    "7 PM Study Reminder",
+                    "Time to work on your projects!",
+                    code2
+            );
+
+            // 2 hours before deadline
+            long dueMillis = selectedDate.getTimeInMillis();
+            long reminderTime = dueMillis - (2 * 60 * 60 * 1000);
+
+            if (reminderTime > System.currentTimeMillis()) {
+                Alarm.setAlarm(
+                        this,
+                        reminderTime,
+                        "Project Due Soon",
+                        "Your project \"" + title + "\" is due in 2 hours!",
+                        code3
+                );
+            }
+        }
+
+
+
+        private void saveProject() {
         String title = projectTitleInput.getText().toString().trim();
         String description = projectDescriptionInput.getText().toString().trim();
         String subject = projectSubjectInput.getText().toString().trim();
@@ -141,8 +191,12 @@ public class AddProjectActivity extends AppCompatActivity {
                     .update(projectData)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Project updated successfully", Toast.LENGTH_SHORT).show();
+
+                        setProjectAlarms(title);
+
                         finish();
                     })
+
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Failed to update project", Toast.LENGTH_SHORT).show();
                     });
@@ -151,11 +205,17 @@ public class AddProjectActivity extends AppCompatActivity {
                     .add(projectData)
                     .addOnSuccessListener(documentReference -> {
                         Toast.makeText(this, "Project added successfully", Toast.LENGTH_SHORT).show();
+
+                        setProjectAlarms(title);
+
                         finish();
                     })
+
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Failed to add project", Toast.LENGTH_SHORT).show();
                     });
         }
+
     }
+
 }

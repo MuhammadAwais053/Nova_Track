@@ -3,13 +3,16 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NovaTrack">
+        android:theme="@style/Theme.NovaTrack"
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name=".SplashActivity"
@@ -47,7 +50,18 @@
         <activity
             android:name=".AddProjectActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            />
+
+        <activity android:name=".HomeActivity"
+            android:exported="false"
+            />
+        <activity android:name=".ChatbotActivity"
+            android:exported="false"
+            />
+        <receiver android:name=".NotificationReceiver"/>
+
+
 
     </application>
 
