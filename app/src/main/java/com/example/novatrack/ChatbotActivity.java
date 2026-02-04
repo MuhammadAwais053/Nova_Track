@@ -49,7 +49,7 @@ public class ChatbotActivity extends AppCompatActivity {
     private ProgressDialog dialog;
 
     private Uri selectedFileUri;
-    private final String API_KEY = "AIzaSyBXhqGygsVsMR8c8zl1uuLhrlJ8JtjlAt0";
+    private final String API_KEY = "AIzaSyCS_Qi0pdcZsdo43Wxvyrcrcuy1lu7Su-w";
 
     private final ActivityResultLauncher<Intent> filePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -82,6 +82,13 @@ public class ChatbotActivity extends AppCompatActivity {
         scrollView = findViewById(R.id.scrollView);
         btnAttach = findViewById(R.id.btnAttach);
         dialog = new ProgressDialog(this);
+
+        // Check if there's an initial message from HomeActivity
+        String initialMessage = getIntent().getStringExtra("USER_MESSAGE");
+        if (initialMessage != null && !initialMessage.isEmpty()) {
+            addMessage(initialMessage, true);
+            getGPTResponse(initialMessage);
+        }
 
         btnAttach.setOnClickListener(v -> openFilePicker());
 
@@ -187,12 +194,18 @@ public class ChatbotActivity extends AppCompatActivity {
                         addMessage("✅ File uploaded", false);
                         askGeminiWithFile(fileName);
                     } catch (Exception e) {
-                        addMessage(e.getMessage(), false);
+                        addMessage("Error processing file: " + e.getMessage(), false);
                     }
                 },
                 error -> {
                     dialog.dismiss();
-                    addMessage("Upload failed: " + error.getMessage(), false);
+                    String errorMsg = "Upload failed";
+                    if (error.networkResponse != null) {
+                        errorMsg += ": " + new String(error.networkResponse.data);
+                    } else if (error.getMessage() != null) {
+                        errorMsg += ": " + error.getMessage();
+                    }
+                    addMessage(errorMsg, false);
                 }) {
             @Override
             protected Map<String, DataPart> getByteData() {
@@ -256,17 +269,24 @@ public class ChatbotActivity extends AppCompatActivity {
                             addMessage(result, false);
                             sendNotification("Tasks extracted from your file!");
                         } catch (Exception e) {
-                            addMessage(e.getMessage(), false);
+                            addMessage("Error: " + e.getMessage(), false);
                         }
                     },
                     error -> {
                         dialog.dismiss();
-                        addMessage("Error: " + error.getMessage(), false);
+                        String errorMsg = "Analysis failed";
+                        if (error.networkResponse != null) {
+                            errorMsg += ": " + new String(error.networkResponse.data);
+                        } else if (error.getMessage() != null) {
+                            errorMsg += ": " + error.getMessage();
+                        }
+                        addMessage(errorMsg, false);
                     });
 
             Volley.newRequestQueue(this).add(request);
         } catch (Exception e) {
-            e.printStackTrace();
+            dialog.dismiss();
+            addMessage("Error: " + e.getMessage(), false);
         }
     }
 
@@ -292,15 +312,20 @@ public class ChatbotActivity extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
         dialog.setMessage("Processing...");
         dialog.show();
+
         try {
             JSONObject text = new JSONObject();
             text.put("text", userMessage);
+
             JSONArray parts = new JSONArray();
             parts.put(text);
+
             JSONObject content = new JSONObject();
             content.put("parts", parts);
+
             JSONArray contents = new JSONArray();
             contents.put(content);
+
             JSONObject body = new JSONObject();
             body.put("contents", contents);
 
@@ -308,27 +333,56 @@ public class ChatbotActivity extends AppCompatActivity {
                     response -> {
                         dialog.dismiss();
                         try {
-                            String result = response.getJSONArray("candidates")
-                                    .getJSONObject(0)
-                                    .getJSONObject("content")
-                                    .getJSONArray("parts")
-                                    .getJSONObject(0)
-                                    .getString("text");
-                            addMessage(result, false);
+                            JSONArray candidates = response.optJSONArray("candidates");
+                            if (candidates != null && candidates.length() > 0) {
+                                JSONObject candidate = candidates.getJSONObject(0);
+                                JSONObject contentObj = candidate.optJSONObject("content");
+                                if (contentObj != null) {
+                                    JSONArray partsArray = contentObj.optJSONArray("parts");
+                                    if (partsArray != null && partsArray.length() > 0) {
+                                        String result = partsArray.getJSONObject(0).optString("text", "");
+                                        if (!result.isEmpty()) {
+                                            addMessage(result, false);
+                                        } else {
+                                            addMessage("Empty response from AI", false);
+                                        }
+                                    } else {
+                                        addMessage("No response parts found", false);
+                                    }
+                                } else {
+                                    addMessage("No content in response", false);
+                                }
+                            } else {
+                                addMessage("No candidates in response", false);
+                            }
                         } catch (Exception e) {
-                            addMessage(e.getMessage(), false);
+                            addMessage("Error parsing response: " + e.getMessage(), false);
+                            e.printStackTrace();
                         }
                     },
                     error -> {
                         dialog.dismiss();
-                        addMessage("Error: " + error.getMessage(), false);
+                        String errorMsg = "Network error";
+                        if (error.networkResponse != null) {
+                            try {
+                                String responseBody = new String(error.networkResponse.data);
+                                errorMsg = "API Error: " + responseBody;
+                            } catch (Exception e) {
+                                errorMsg = "Error code: " + error.networkResponse.statusCode;
+                            }
+                        } else if (error.getMessage() != null) {
+                            errorMsg = error.getMessage();
+                        }
+                        addMessage(errorMsg, false);
+                        error.printStackTrace();
                     });
 
             queue.add(request);
 
         } catch (Exception e) {
             dialog.dismiss();
-            addMessage(e.getMessage(), false);
+            addMessage("Error creating request: " + e.getMessage(), false);
+            e.printStackTrace();
         }
     }
 }

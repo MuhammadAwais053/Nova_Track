@@ -53,4 +53,6 @@
     <string name="let_action_begin">Let the action begin</string>
     <string name="send">Send</string>
     <string name="type_a_message">Type a message...</string>
+    <string name="attach">Attach</string>
+    <string name="update_project">Update Project</string>
 </resources>

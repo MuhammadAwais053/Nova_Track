@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <!-- Type Indicator (Color Bar) -->
+        <View
+            android:id="@+id/typeIndicator"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#2196F3"
+            android:layout_marginEnd="12dp" />
+
+        <!-- Event Details -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Event Title -->
+            <TextView
+                android:id="@+id/eventTitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Event Title"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A1A"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <!-- Event Subtitle (Project/Task Name) -->
+            <TextView
+                android:id="@+id/eventSubtitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Project/Task Name"
+                android:textSize="13sp"
+                android:textColor="#666666"
+                android:layout_marginTop="4dp"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+        </LinearLayout>
+
+        <!-- Type and Status -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="end"
+            android:layout_marginStart="12dp">
+
+            <!-- Type Badge (PROJECT/TASK) -->
+            <TextView
+                android:id="@+id/eventTypeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PROJECT"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bg_priority_medium"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp" />
+
+            <!-- Status Text -->
+            <TextView
+                android:id="@+id/eventStatusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⏱ Pending"
+                android:textSize="12sp"
+                android:textColor="#FF9800"
+                android:layout_marginTop="8dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

@@ -1,192 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/background_light"
-    android:gravity="center"
-    android:fitsSystemWindows="false"
-    android:fillViewport="true">
+    android:padding="20dp">
 
+    <!-- Welcome Text -->
+
+    <!-- Search/Chat Input -->
+    <TextView
+        android:id="@+id/Greeting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="16dp"
+        android:text="Welcome!"
+        android:textColor="#1A1A1A"
+        android:layout_gravity="center"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:elevation="2dp"
+        android:radius="15dp">
+
+        <EditText
+            android:id="@+id/projectTitleInput"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:background="@android:color/transparent"
+            android:hint="Ask or find anything about your tasks..."
+            android:imeOptions="actionSend"
+            android:inputType="text"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textSize="16sp" />
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Your Workspace Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Workspace"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#1A1A1A"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Workspace Buttons Grid -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:gravity="center">
 
-        android:padding="20dp">
-
-        <TextView
-            android:id="@+id/Greeting"
-            android:layout_width="372dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="70dp"
-            android:layout_marginBottom="35dp"
-            android:gravity="center"
-            android:text="Welcome!"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            android:textColor="#000000"/>
-
+        <!-- First Row: Projects and Tasks -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/chat_card"
-            android:padding="16dp"
-            android:layout_marginBottom="15dp">
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="16dp">
 
-            <EditText
-                android:id="@+id/projectTitleInput"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:hint="Ask or find anything about your tasks…"
-                android:background="@drawable/bg_input_field"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:textSize="16sp"
-                android:textColor="@color/text_primary"
-                android:layout_marginBottom="20dp"
-
-                android:singleLine="true"
-                android:imeOptions="actionSend"
-                android:inputType="text" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="10dp">
-
-                <Button
-                    android:id="@+id/btnAttach"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="Attach"
-                    android:textAllCaps="false"
-                    android:textColor="#000000"
-                    android:textSize="15sp"
-                    android:background="@drawable/attach_button"
-                    app:backgroundTint="@null"
-                android:stateListAnimator="@null"
-                android:gravity="center"
-                android:drawableStart="@drawable/baseline_attach_file_24"
-                    app:icon="@drawable/baseline_attach_file_24"
-                    app:iconGravity="textStart"
-                    app:iconPadding="6dp"
-                    app:iconTint="@null"
-                    app:cornerRadius="18dp"
-                android:drawablePadding="6dp"
-                android:paddingHorizontal="14dp"/>
-
-
-                <Button
-                    android:id="@+id/btnResearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="36dp"
-                    android:text="Research"
-                    android:textAllCaps="false"
-                    android:textColor="#000000"
-                    android:textSize="15dp"
-                    android:background="@drawable/attach_button"
-                    app:backgroundTint="@null"
-                    android:stateListAnimator="@null"
-                    android:gravity="center"
-                    android:drawableStart="@drawable/baseline_attach_file_24"
-                    app:icon="@drawable/baseline_search_24"
-                    app:iconGravity="textStart"
-                    app:iconPadding="6dp"
-                    app:iconTint="@null"
-                    app:cornerRadius="18dp"
-                    android:drawablePadding="6dp"
-                    android:paddingHorizontal="14dp"/>
-
-
-
-
-
-            </LinearLayout>
-        </LinearLayout>
-
-
-        <TextView
-            android:layout_width="364dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:layout_marginTop="16dp"
-
-
-            android:gravity="center"
-            android:text="Your Workspace"
-            android:textColor="#000000"
-            android:textSize="30sp"
-            android:textStyle="bold" />
-
-        <GridLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:alignmentMode="alignMargins"
-            android:columnCount="2"
-            android:columnOrderPreserved="false"
-            android:rowCount="2"
-            android:layout_marginTop="13dp"
-            android:useDefaultMargins="true">
-
+            <!-- Projects Button -->
             <Button
                 android:id="@+id/btnProject"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/btn_shape"
-                android:paddingStart="24dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="12dp"
-                android:text="Projects"
-                android:textColor="#FFFFFF"
-                android:textSize="19dp" />
+                android:layout_width="10dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="PROJECTS"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bg_button"
+                android:elevation="4dp" />
 
+            <!-- Tasks Button -->
             <Button
-                android:layout_width="155dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/btn_shape"
-                android:paddingStart="24dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="12dp"
-                android:text="Tasks"
-                android:textColor="#FFFFFF"
-                android:textSize="19dp" />
+                android:id="@+id/btnTasks"
+                android:layout_width="10dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="TASKS"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bg_button"
+                android:elevation="4dp" />
 
+        </LinearLayout>
+
+        <!-- Second Row: Progress and Calendar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <!-- Progress Button -->
             <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/btn_shape"
-                android:paddingStart="24dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="12dp"
-                android:text="Progress"
-                android:textColor="#FFFFFF"
-                android:textSize="19dp" />
+                android:id="@+id/btnProgress"
+                android:layout_width="10dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="PROGRESS"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bg_button"
+                android:elevation="4dp" />
 
+            <!-- Calendar Button -->
             <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/btn_shape"
-                android:paddingStart="24dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="12dp"
-                android:text="Calendar"
-                android:textColor="#FFFFFF"
-                android:textSize="19dp" />
+                android:id="@+id/btnCalendar"
+                android:layout_width="10dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="CALENDAR"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="@drawable/bg_button"
+                android:elevation="4dp" />
 
-        </GridLayout>
+        </LinearLayout>
 
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>

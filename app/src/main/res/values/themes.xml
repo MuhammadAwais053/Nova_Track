@@ -12,4 +12,15 @@
     <style name="Theme.NovaTrack.Splash" parent="Theme.NovaTrack">
         <item name="android:windowFullscreen">false</item>
     </style>
+
+    <style name="CalendarDateTextAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="CalendarWeekDayTextAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>
