@@ -25,7 +25,6 @@ public abstract class VolleyMultipartRequest extends Request<NetworkResponse> {
         this.mListener = listener;
     }
 
-    // Inner class for sending file data
     public static class DataPart {
         private final String fileName;
         private final byte[] content;

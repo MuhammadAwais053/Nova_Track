@@ -1,5 +1,6 @@
 package com.example.novatrack;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.example.novatrack.utils.StatusBarHelper;
 
+@SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -26,10 +28,8 @@ public class SplashActivity extends AppCompatActivity {
             Intent intent;
 
             if (currentUser != null) {
-                // User is logged in - go to HomeActivity
                 intent = new Intent(SplashActivity.this, HomeActivity.class);
             } else {
-                // User is not logged in - go to SignInActivity
                 intent = new Intent(SplashActivity.this, SignInActivity.class);
             }
 

@@ -39,7 +39,7 @@ public class AddProjectActivity extends AppCompatActivity {
     private String projectId;
     private int currentProgress = 0;
     private ProgressDialog progressDialog;
-    private final String API_KEY = "AIzaSyCS_Qi0pdcZsdo43Wxvyrcrcuy1lu7Su-w";
+    private final String API_KEY = "ADD YOUR GEMINI API KEY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,26 +121,12 @@ public class AddProjectActivity extends AppCompatActivity {
         String description = projectDescriptionInput.getText().toString().trim();
         String subject = projectSubjectInput.getText().toString().trim();
         String dueDate = dueDateInput.getText().toString().trim();
-        if (title.isEmpty()) {
-            Toast.makeText(this, "Please enter project title", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (description.isEmpty()) {
-            Toast.makeText(this, "Please enter project description", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (subject.isEmpty()) {
-            Toast.makeText(this, "Please enter subject", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (dueDate.isEmpty()) {
-            Toast.makeText(this, "Please select due date", Toast.LENGTH_SHORT).show();
+        if (title.isEmpty() || description.isEmpty() || subject.isEmpty() || dueDate.isEmpty()) {
+            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
         String userId = mAuth.getCurrentUser().getUid();
-        long timestamp = System.currentTimeMillis();
         int progress = isEditMode ? currentProgress : 0;
-        String status = progress == 100 ? "Completed" : "In Progress";
         Map<String, Object> projectData = new HashMap<>();
         projectData.put("userId", userId);
         projectData.put("title", title);
@@ -148,87 +134,126 @@ public class AddProjectActivity extends AppCompatActivity {
         projectData.put("subject", subject);
         projectData.put("dueDate", dueDate);
         projectData.put("progress", progress);
-        projectData.put("status", status);
-        projectData.put("updatedAt", timestamp);
+        projectData.put("status", progress == 100 ? "Completed" : "In Progress");
+        projectData.put("updatedAt", System.currentTimeMillis());
         if (isEditMode) {
             db.collection("projects").document(projectId).update(projectData)
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Project updated successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Project updated", Toast.LENGTH_SHORT).show();
                         setProjectAlarms(title);
                         finish();
-                    }).addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to update project", Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "Update failed", e);
-                    });
+                    }).addOnFailureListener(e -> Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show());
         } else {
             db.collection("projects").add(projectData)
-                    .addOnSuccessListener(documentReference -> {
-                        projectId = documentReference.getId();
+                    .addOnSuccessListener(doc -> {
+                        projectId = doc.getId();
                         Toast.makeText(this, "Project added successfully", Toast.LENGTH_SHORT).show();
                         setProjectAlarms(title);
                         generateAITasks(projectId, title, description, subject, dueDate);
                     }).addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to add project", Toast.LENGTH_SHORT).show();
-                        Log.e(TAG, "Save failed", e);
+                        Toast.makeText(this, "Save failed", Toast.LENGTH_SHORT).show();
                         finish();
                     });
         }
     }
 
     private void generateAITasks(String projectId, String title, String description, String subject, String dueDate) {
+        Log.d(TAG, "========================================");
+        Log.d(TAG, "STARTING TASK GENERATION");
+        Log.d(TAG, "Project ID: " + projectId);
+        Log.d(TAG, "Title: " + title);
+        Log.d(TAG, "========================================");
+
         progressDialog.setMessage("Generating tasks...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        // Add small delay to avoid rate limit
-        new android.os.Handler().postDelayed(() -> {
-            generateAITasksNow(projectId, title, description, subject, dueDate);
-        }, 1000); // 1 second delay
-    }
-
-    private void generateAITasksNow(String projectId, String title, String description, String subject, String dueDate) {
-        // ✅ CORRECT: Using X-goog-api-key header (NOT in URL!)
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
-
-        Log.d(TAG, "Using gemini-2.0-flash with X-goog-api-key header");
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+        Log.d(TAG, "API URL: " + url);
 
         String prompt = "Create exactly 6 tasks for this project. Return ONLY a valid JSON array.\n\n" +
                 "Project: " + title + "\nDescription: " + description + "\nSubject: " + subject + "\nDue Date: " + dueDate + "\n\n" +
-                "Format (NO markdown):\n[{\"taskName\":\"Task 1\",\"description\":\"Details\",\"priority\":\"high\",\"deadline\":\"Feb 10, 2026\"}]\n\n" +
-                "Rules:\n- Exactly 6 tasks\n- All deadlines BEFORE " + dueDate + "\n- Priority: high, medium, or low\n- Pure JSON only\n\nTasks:";
+                "Format:\n[{\"taskName\":\"Research\",\"description\":\"Details\",\"priority\":\"high\",\"deadline\":\"Feb 10, 2026\"}]\n\n" +
+                "Rules: 6 tasks, deadlines BEFORE " + dueDate + ", priority: high/medium/low, pure JSON\n\nTasks:";
+
+        Log.d(TAG, "Prompt length: " + prompt.length() + " chars");
 
         try {
             JSONObject textPart = new JSONObject();
             textPart.put("text", prompt);
+
             JSONArray parts = new JSONArray();
             parts.put(textPart);
+
             JSONObject content = new JSONObject();
             content.put("parts", parts);
+
             JSONArray contents = new JSONArray();
             contents.put(content);
+
             JSONObject body = new JSONObject();
             body.put("contents", contents);
 
-            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, body,
-                    response -> handleAIResponse(response, projectId, title),
-                    this::handleAIError) {
+            Log.d(TAG, "Request body created successfully");
+            Log.d(TAG, "Body: " + body.toString());
 
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, body,
+                    response -> {
+                        Log.d(TAG, "========================================");
+                        Log.d(TAG, "✓ API RESPONSE RECEIVED!");
+                        Log.d(TAG, "Response: " + response.toString());
+                        Log.d(TAG, "========================================");
+                        handleAIResponse(response, projectId, title);
+                    },
+                    error -> {
+                        Log.e(TAG, "========================================");
+                        Log.e(TAG, "✗ API ERROR!");
+                        Log.e(TAG, "Error: " + error.toString());
+                        if (error.networkResponse != null) {
+                            Log.e(TAG, "Status Code: " + error.networkResponse.statusCode);
+                            try {
+                                String errorBody = new String(error.networkResponse.data);
+                                Log.e(TAG, "Error Body: " + errorBody);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Can't read error body", e);
+                            }
+                        } else {
+                            Log.e(TAG, "No network response - check internet connection");
+                            if (error.getCause() != null) {
+                                Log.e(TAG, "Cause: " + error.getCause().toString());
+                            }
+                        }
+                        Log.e(TAG, "========================================");
+                        handleAIError(error);
+                    }) {
                 @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
+                public Map<String, String> getHeaders() {
                     Map<String, String> headers = new HashMap<>();
                     headers.put("Content-Type", "application/json");
-                    headers.put("X-goog-api-key", API_KEY); // ✅ API KEY IN HEADER!
+                    headers.put("X-goog-api-key", API_KEY);
+                    Log.d(TAG, "Headers set: Content-Type and X-goog-api-key");
                     return headers;
                 }
             };
+            request.setRetryPolicy(new com.android.volley.DefaultRetryPolicy(
+                    40000, // 40 seconds timeout
+                    0,
+                    com.android.volley.DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
 
             request.setShouldCache(false);
-            Volley.newRequestQueue(this).add(request);
+            RequestQueue queue = Volley.newRequestQueue(this);
+            queue.add(request);
+            Log.d(TAG, "Request added to queue");
 
         } catch (Exception e) {
             progressDialog.dismiss();
-            Log.e(TAG, "Request error", e);
-            Toast.makeText(this, "Failed to generate", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "========================================");
+            Log.e(TAG, "Exception creating request", e);
+            Log.e(TAG, "Exception message: " + e.getMessage());
+            Log.e(TAG, "========================================");
+            Toast.makeText(this, "Exception: " + e.getMessage(), Toast.LENGTH_LONG).show();
             finish();
         }
     }
@@ -236,120 +261,183 @@ public class AddProjectActivity extends AppCompatActivity {
     private void handleAIResponse(JSONObject response, String projectId, String projectName) {
         progressDialog.dismiss();
         try {
+            Log.d(TAG, "Parsing response...");
+
             JSONArray candidates = response.optJSONArray("candidates");
+            Log.d(TAG, "Candidates: " + (candidates != null ? candidates.length() : "null"));
+
             if (candidates == null || candidates.length() == 0) {
-                Toast.makeText(this, "No response", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "No candidates in response");
+                Toast.makeText(this, "No AI response received", Toast.LENGTH_LONG).show();
                 finish();
                 return;
             }
+
             JSONObject candidate = candidates.getJSONObject(0);
             JSONObject contentObj = candidate.optJSONObject("content");
+            Log.d(TAG, "Content object: " + (contentObj != null ? "exists" : "null"));
+
             if (contentObj == null) {
-                Toast.makeText(this, "Invalid format", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "No content object");
+                Toast.makeText(this, "Invalid response format", Toast.LENGTH_LONG).show();
                 finish();
                 return;
             }
+
             JSONArray partsArray = contentObj.optJSONArray("parts");
+            Log.d(TAG, "Parts array: " + (partsArray != null ? partsArray.length() : "null"));
+
             if (partsArray == null || partsArray.length() == 0) {
-                Toast.makeText(this, "Empty content", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "No parts in content");
+                Toast.makeText(this, "Empty response content", Toast.LENGTH_LONG).show();
                 finish();
                 return;
             }
+
             String result = partsArray.getJSONObject(0).optString("text", "");
+            Log.d(TAG, "Raw text length: " + result.length());
+            Log.d(TAG, "Raw text: " + result);
+
             if (result.isEmpty()) {
-                Toast.makeText(this, "Empty text", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Empty text in response");
+                Toast.makeText(this, "AI returned empty text", Toast.LENGTH_LONG).show();
                 finish();
                 return;
             }
-            result = result.trim().replaceAll("```json\\s*", "").replaceAll("```\\s*", "").trim();
+
+            result = result.replaceAll("```json", "").replaceAll("```", "").trim();
             int start = result.indexOf('[');
             int end = result.lastIndexOf(']');
-            if (start != -1 && end != -1 && end > start) {
+            if (start != -1 && end != -1) {
                 result = result.substring(start, end + 1);
             }
-            JSONArray tasksArray = new JSONArray(result);
-            Log.d(TAG, "✓ SUCCESS: Generated " + tasksArray.length() + " tasks!");
-            saveTasksToFirestore(projectId, projectName, tasksArray);
+
+            Log.d(TAG, "Cleaned JSON: " + result);
+
+            JSONArray tasks = new JSONArray(result);
+            Log.d(TAG, "✓ Parsed " + tasks.length() + " tasks successfully!");
+
+            saveTasksToFirestore(projectId, projectName, tasks);
+
         } catch (Exception e) {
-            Log.e(TAG, "Parse error", e);
-            Toast.makeText(this, "Parse failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Parse exception", e);
+            Log.e(TAG, "Exception message: " + e.getMessage());
+            Toast.makeText(this, "Parse error: " + e.getMessage(), Toast.LENGTH_LONG).show();
             finish();
         }
     }
 
     private void handleAIError(com.android.volley.VolleyError error) {
         progressDialog.dismiss();
-        String errorMsg = "Unknown error";
+        String msg = "Unknown error";
+
         if (error.networkResponse != null) {
             int code = error.networkResponse.statusCode;
+            Log.e(TAG, "HTTP Status Code: " + code);
+
             try {
-                String body = new String(error.networkResponse.data);
-                Log.e(TAG, "Error " + code + ": " + body);
+                String errorBody = new String(error.networkResponse.data);
+                Log.e(TAG, "Error response: " + errorBody);
             } catch (Exception e) {
-                Log.e(TAG, "Can't read error", e);
+                Log.e(TAG, "Can't read error response", e);
             }
-            if (code == 404) errorMsg = "Model not found";
-            else if (code == 400) errorMsg = "Bad request";
-            else if (code == 403) errorMsg = "API key denied";
-            else if (code == 429) errorMsg = "Too many requests";
-            else errorMsg = "Error " + code;
+
+            switch (code) {
+                case 400:
+                    msg = "Bad request - check API format";
+                    break;
+                case 403:
+                    msg = "API key denied - check permissions";
+                    break;
+                case 404:
+                    msg = "Model not found - gemini-2.5-flash unavailable";
+                    break;
+                case 429:
+                    msg = "Rate limit exceeded. Create new API key at aistudio.google.com";
+                    break;
+                case 500:
+                    msg = "Server error - try again";
+                    break;
+                default:
+                    msg = "HTTP Error " + code;
+            }
         } else if (error.getMessage() != null) {
-            errorMsg = error.getMessage();
+            msg = "Network error: " + error.getMessage();
+            Log.e(TAG, "Network error message: " + error.getMessage());
+        } else {
+            msg = "No network response - check internet";
+            Log.e(TAG, "No network response at all");
         }
-        Toast.makeText(this, "Error: " + errorMsg, Toast.LENGTH_LONG).show();
+
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
         finish();
     }
 
     private void saveTasksToFirestore(String projectId, String projectName, JSONArray tasksArray) {
         String userId = mAuth.getCurrentUser().getUid();
-        int tasksCount = Math.min(tasksArray.length(), 6);
-        Log.d(TAG, "Saving " + tasksCount + " tasks");
-        for (int i = 0; i < tasksCount; i++) {
+        int count = Math.min(tasksArray.length(), 6);
+
+        Log.d(TAG, "========================================");
+        Log.d(TAG, "SAVING TASKS TO FIRESTORE");
+        Log.d(TAG, "Project ID: " + projectId);
+        Log.d(TAG, "Tasks count: " + count);
+        Log.d(TAG, "========================================");
+
+        for (int i = 0; i < count; i++) {
             try {
                 JSONObject taskJson = tasksArray.getJSONObject(i);
                 String taskName = taskJson.optString("taskName", "Task " + (i + 1));
-                String taskDescription = taskJson.optString("description", "");
+                String taskDesc = taskJson.optString("description", "");
                 String priority = taskJson.optString("priority", "medium").toLowerCase();
                 String deadline = taskJson.optString("deadline", dueDateInput.getText().toString());
-                if (!priority.equals("high") && !priority.equals("medium") && !priority.equals("low")) {
-                    priority = "medium";
-                }
-                Task task = new Task(projectId, projectName, taskName, taskDescription,
+
+                if (!priority.matches("high|medium|low")) priority = "medium";
+
+                Log.d(TAG, "Creating task " + (i+1) + ": " + taskName);
+
+                Task task = new Task(projectId, projectName, taskName, taskDesc,
                         deadline, "pending", priority, System.currentTimeMillis(), userId);
+
+                final int taskNum = i + 1;
                 db.collection("tasks").add(task)
                         .addOnSuccessListener(doc -> {
-                            Log.d(TAG, "✓ Task saved: " + taskName);
+                            Log.d(TAG, "✓ Task " + taskNum + " saved: " + doc.getId());
                             scheduleTaskReminders(doc.getId(), taskName, deadline);
                         })
-                        .addOnFailureListener(e -> Log.e(TAG, "✗ Failed: " + taskName, e));
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "✗ Task " + taskNum + " failed", e);
+                        });
+
             } catch (Exception e) {
-                Log.e(TAG, "Task error " + i, e);
+                Log.e(TAG, "Error creating task " + (i+1), e);
             }
         }
-        Toast.makeText(this, "Tasks generated successfully!", Toast.LENGTH_SHORT).show();
+
+        Toast.makeText(this, "✓ Tasks generated successfully!", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "========================================");
+        Log.d(TAG, "TASK GENERATION COMPLETE!");
+        Log.d(TAG, "========================================");
         finish();
     }
 
     private void scheduleTaskReminders(String taskId, String taskName, String deadline) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
-            Calendar deadlineCal = Calendar.getInstance();
-            deadlineCal.setTime(sdf.parse(deadline));
-            long deadlineMillis = deadlineCal.getTimeInMillis();
-            int code1 = taskId.hashCode();
-            int code2 = taskId.hashCode() + 1;
-            long oneDayBefore = deadlineMillis - (24 * 60 * 60 * 1000);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(sdf.parse(deadline));
+            long deadlineMillis = cal.getTimeInMillis();
+            long oneDayBefore = deadlineMillis - 86400000;
+            long oneHourBefore = deadlineMillis - 3600000;
             if (oneDayBefore > System.currentTimeMillis()) {
                 Alarm.setAlarm(this, oneDayBefore, "Task Reminder",
-                        "Task \"" + taskName + "\" is due tomorrow!", code1);
+                        "Task \"" + taskName + "\" is due tomorrow!", taskId.hashCode());
             }
-            long oneHourBefore = deadlineMillis - (60 * 60 * 1000);
             if (oneHourBefore > System.currentTimeMillis()) {
                 Alarm.setAlarm(this, oneHourBefore, "Task Due Soon",
-                        "Task \"" + taskName + "\" is due in 1 hour!", code2);
+                        "Task \"" + taskName + "\" is due in 1 hour!", taskId.hashCode() + 1);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Reminder error", e);
+            Log.e(TAG, "Reminder scheduling error", e);
         }
     }
 }

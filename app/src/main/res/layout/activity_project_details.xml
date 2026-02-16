@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_arrow_back"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Project Details"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_gravity="center_vertical"
+            android:paddingStart="8dp"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/projectTitleText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Project Title"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"/>
+
+                    <TextView
+                        android:id="@+id/subjectText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Subject: Computer Science"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/darker_gray"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/dueDateText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Due: Feb 28, 2026"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/darker_gray"
+                        android:layout_marginBottom="16dp"/>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E0E0E0"
+                        android:layout_marginBottom="16dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Description"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/descriptionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Project description"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="16dp"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Progress"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ProgressBar
+                            android:id="@+id/progressBar"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:max="100"
+                            android:progress="0"/>
+
+                        <TextView
+                            android:id="@+id/progressText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0%"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginStart="12dp"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tasks"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tasksRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/emptyTasksView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No tasks yet for this project"
+                android:textAlignment="center"
+                android:padding="32dp"
+                android:visibility="gone"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

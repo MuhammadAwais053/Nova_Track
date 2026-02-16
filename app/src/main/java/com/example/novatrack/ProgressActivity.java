@@ -1,5 +1,6 @@
 package com.example.novatrack;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -34,7 +35,6 @@ public class ProgressActivity extends AppCompatActivity {
     private BarChart barChart;
     private TextView totalProjectsText, completedProjectsText, inProgressProjectsText, overallProgressText;
     private TextView emptyView;
-    private ImageView backButton;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private List<Project> projectList;
@@ -57,7 +57,7 @@ public class ProgressActivity extends AppCompatActivity {
         inProgressProjectsText = findViewById(R.id.inProgressProjectsText);
         overallProgressText = findViewById(R.id.overallProgressText);
         emptyView = findViewById(R.id.emptyView);
-        backButton = findViewById(R.id.backButton);
+        ImageView backButton = findViewById(R.id.backButton);
 
         backButton.setOnClickListener(v -> finish());
 
@@ -65,6 +65,7 @@ public class ProgressActivity extends AppCompatActivity {
     }
 
     private void loadProjectsData() {
+        assert mAuth.getCurrentUser() != null;
         String userId = mAuth.getCurrentUser().getUid();
 
         db.collection("projects")
@@ -94,6 +95,7 @@ public class ProgressActivity extends AppCompatActivity {
                 });
     }
 
+    @SuppressLint("SetTextI18n")
     private void calculateStatistics() {
         int totalProjects = projectList.size();
         int completedProjects = 0;
@@ -193,6 +195,7 @@ public class ProgressActivity extends AppCompatActivity {
         barChart.invalidate();
     }
 
+    @SuppressLint("SetTextI18n")
     private void showEmptyView() {
         emptyView.setVisibility(View.VISIBLE);
         pieChart.setVisibility(View.GONE);

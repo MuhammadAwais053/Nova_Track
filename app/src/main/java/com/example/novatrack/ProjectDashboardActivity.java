@@ -222,7 +222,6 @@
                     .addOnFailureListener(e -> Toast.makeText(this, "Failed to delete project", Toast.LENGTH_SHORT).show());
         }
 
-        // ======== NOTIFICATIONS ========
 
         private void scheduleProjectNotification(String title, String message, long triggerAtMillis) {
             Intent intent = new Intent(this, NotificationReceiver.class);
@@ -251,7 +250,6 @@
             }
         }
 
-        // Convert project due date String to milliseconds
         private long getMillisFromDueDate(String dueDate) {
             // Example format: "2026-02-01 15:30"
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");

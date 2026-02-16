@@ -1,5 +1,6 @@
 package com.example.novatrack;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,7 +40,6 @@ public class TaskActivity extends AppCompatActivity {
     private List<Task> filteredTasksList;
     private ChipGroup filterChipGroup;
     private TextView emptyView;
-    private ImageView backButton;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private String currentFilter = "all";
@@ -66,7 +66,7 @@ public class TaskActivity extends AppCompatActivity {
         tasksRecyclerView = findViewById(R.id.tasksRecyclerView);
         filterChipGroup = findViewById(R.id.filterChipGroup);
         emptyView = findViewById(R.id.emptyView);
-        backButton = findViewById(R.id.backButton);
+        ImageView backButton = findViewById(R.id.backButton);
 
         allTasksList = new ArrayList<>();
         filteredTasksList = new ArrayList<>();
@@ -113,6 +113,7 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     private void loadTasks() {
+        assert mAuth.getCurrentUser() != null;
         String userId = mAuth.getCurrentUser().getUid();
 
         Log.d(TAG, "=== LOADING TASKS ===");
@@ -153,6 +154,7 @@ public class TaskActivity extends AppCompatActivity {
                 });
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void filterTasks(String filter) {
         Log.d(TAG, "Filtering tasks with: " + filter);
 

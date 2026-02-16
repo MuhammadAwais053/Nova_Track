@@ -53,46 +53,80 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void setupPasswordToggle() {
-        passwordToggle.setOnClickListener(v -> {
-            if (isPasswordVisible) {
-                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                passwordToggle.setImageResource(R.drawable.ic_visibility_off);
-            } else {
-                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                passwordToggle.setImageResource(R.drawable.ic_visibility);
-            }
-            isPasswordVisible = !isPasswordVisible;
-            passwordInput.setSelection(passwordInput.getText().length());
-        });
+        if (passwordToggle != null) {
+            passwordToggle.setOnClickListener(v -> {
+                if (isPasswordVisible) {
+                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    passwordToggle.setImageResource(R.drawable.ic_visibility_off);
+                } else {
+                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    passwordToggle.setImageResource(R.drawable.ic_visibility);
+                }
+                isPasswordVisible = !isPasswordVisible;
+                passwordInput.setSelection(passwordInput.getText().length());
+            });
+        }
     }
 
     private void setupSignUpText() {
-        String text = "Don't have account? Sign Up";
-        SpannableString spannableString = new SpannableString(text);
+        try {
+            String text = "Don't have account? Sign Up";
+            SpannableString spannableString = new SpannableString(text);
 
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(@NonNull View widget) {
-                startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
-            }
+            ClickableSpan clickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    try {
+                        Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(SignInActivity.this, "Error opening Sign Up", Toast.LENGTH_SHORT).show();
+                    }
+                }
 
-            @Override
-            public void updateDrawState(@NonNull TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setColor(getResources().getColor(R.color.primary_blue));
-                ds.setUnderlineText(false);
-            }
-        };
+                @Override
+                public void updateDrawState(@NonNull TextPaint ds) {
+                    super.updateDrawState(ds);
+                    try {
+                        ds.setColor(getResources().getColor(R.color.primary_blue));
+                    } catch (Exception e) {
+                        ds.setColor(0xFF4285F4);
+                    }
+                    ds.setUnderlineText(false);
+                }
+            };
 
-        spannableString.setSpan(clickableSpan, 20, 27, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        signUpText.setText(spannableString);
-        signUpText.setMovementMethod(LinkMovementMethod.getInstance());
+            spannableString.setSpan(clickableSpan, 20, 27, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            signUpText.setText(spannableString);
+            signUpText.setMovementMethod(LinkMovementMethod.getInstance());
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fallback: simple click listener
+            signUpText.setOnClickListener(v -> {
+                try {
+                    Intent intent = new Intent(SignInActivity.this, SignUpActivity.class);
+                    startActivity(intent);
+                } catch (Exception ex) {
+                    Toast.makeText(SignInActivity.this, "Error: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void setupForgotPasswordText() {
-        forgotPasswordText.setOnClickListener(v -> {
-            startActivity(new Intent(SignInActivity.this, ForgotPasswordActivity.class));
-        });
+        if (forgotPasswordText != null) {
+            forgotPasswordText.setOnClickListener(v -> {
+                try {
+                    // Check if ForgotPasswordActivity exists
+                    Intent intent = new Intent(SignInActivity.this, ForgotPasswordActivity.class);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    // If ForgotPasswordActivity doesn't exist, show a toast
+                    Toast.makeText(this, "Forgot password feature coming soon", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void signInUser() {
@@ -114,17 +148,14 @@ public class SignInActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Toast.makeText(SignInActivity.this, "Sign in successful", Toast.LENGTH_SHORT).show();
 
-                        // Start HomeActivity
                         Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
-
-                        // Optional: Close SignInActivity so user can't go back
                         finish();
                     } else {
                         Toast.makeText(SignInActivity.this, "Authentication failed: "
                                 + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-
     }
 }

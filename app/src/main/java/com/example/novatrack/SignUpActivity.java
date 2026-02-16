@@ -17,8 +17,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.example.novatrack.utils.StatusBarHelper;
 import com.example.novatrack.utils.ValidationHelper;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -27,80 +30,126 @@ public class SignUpActivity extends AppCompatActivity {
     private TextView signInText;
     private ImageView passwordToggle, confirmPasswordToggle;
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
     private boolean isPasswordVisible = false;
     private boolean isConfirmPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
+
+        try {
+            setContentView(R.layout.activity_signup);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error loading layout: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         StatusBarHelper.setTransparentStatusBar(this, true);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
-        fullNameInput = findViewById(R.id.fullNameInput);
-        emailInput = findViewById(R.id.emailInput);
-        passwordInput = findViewById(R.id.passwordInput);
-        confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
-        signUpButton = findViewById(R.id.signUpButton);
-        signInText = findViewById(R.id.signInText);
-        passwordToggle = findViewById(R.id.passwordToggle);
-        confirmPasswordToggle = findViewById(R.id.confirmPasswordToggle);
+        try {
+            fullNameInput = findViewById(R.id.fullNameInput);
+            emailInput = findViewById(R.id.emailInput);
+            passwordInput = findViewById(R.id.passwordInput);
+            confirmPasswordInput = findViewById(R.id.confirmPasswordInput);
+            signUpButton = findViewById(R.id.signUpButton);
+            signInText = findViewById(R.id.signInText);
+            passwordToggle = findViewById(R.id.passwordToggle);
+            confirmPasswordToggle = findViewById(R.id.confirmPasswordToggle);
 
-        setupPasswordToggles();
-        setupSignInText();
+            setupPasswordToggles();
+            setupSignInText();
 
-        signUpButton.setOnClickListener(v -> signUpUser());
+            signUpButton.setOnClickListener(v -> signUpUser());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error initializing views: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     private void setupPasswordToggles() {
-        passwordToggle.setOnClickListener(v -> {
-            if (isPasswordVisible) {
-                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                passwordToggle.setImageResource(R.drawable.ic_visibility_off);
-            } else {
-                passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                passwordToggle.setImageResource(R.drawable.ic_visibility);
-            }
-            isPasswordVisible = !isPasswordVisible;
-            passwordInput.setSelection(passwordInput.getText().length());
-        });
+        if (passwordToggle != null) {
+            passwordToggle.setOnClickListener(v -> {
+                if (isPasswordVisible) {
+                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    try {
+                        passwordToggle.setImageResource(R.drawable.ic_visibility_off);
+                    } catch (Exception e) {
+                        // Ignore if drawable not found
+                    }
+                } else {
+                    passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    try {
+                        passwordToggle.setImageResource(R.drawable.ic_visibility);
+                    } catch (Exception e) {
+                        // Ignore if drawable not found
+                    }
+                }
+                isPasswordVisible = !isPasswordVisible;
+                passwordInput.setSelection(passwordInput.getText().length());
+            });
+        }
 
-        confirmPasswordToggle.setOnClickListener(v -> {
-            if (isConfirmPasswordVisible) {
-                confirmPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                confirmPasswordToggle.setImageResource(R.drawable.ic_visibility_off);
-            } else {
-                confirmPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                confirmPasswordToggle.setImageResource(R.drawable.ic_visibility);
-            }
-            isConfirmPasswordVisible = !isConfirmPasswordVisible;
-            confirmPasswordInput.setSelection(confirmPasswordInput.getText().length());
-        });
+        if (confirmPasswordToggle != null) {
+            confirmPasswordToggle.setOnClickListener(v -> {
+                if (isConfirmPasswordVisible) {
+                    confirmPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    try {
+                        confirmPasswordToggle.setImageResource(R.drawable.ic_visibility_off);
+                    } catch (Exception e) {
+                        // Ignore if drawable not found
+                    }
+                } else {
+                    confirmPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    try {
+                        confirmPasswordToggle.setImageResource(R.drawable.ic_visibility);
+                    } catch (Exception e) {
+                        // Ignore if drawable not found
+                    }
+                }
+                isConfirmPasswordVisible = !isConfirmPasswordVisible;
+                confirmPasswordInput.setSelection(confirmPasswordInput.getText().length());
+            });
+        }
     }
 
     private void setupSignInText() {
-        String text = "Already have account? Sign In";
-        SpannableString spannableString = new SpannableString(text);
+        try {
+            String text = "Already have account? Sign In";
+            SpannableString spannableString = new SpannableString(text);
 
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(@NonNull View widget) {
-                finish();
-            }
+            ClickableSpan clickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    finish();
+                }
 
-            @Override
-            public void updateDrawState(@NonNull TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setColor(getResources().getColor(R.color.primary_blue));
-                ds.setUnderlineText(false);
-            }
-        };
+                @Override
+                public void updateDrawState(@NonNull TextPaint ds) {
+                    super.updateDrawState(ds);
+                    try {
+                        ds.setColor(getResources().getColor(R.color.primary_blue));
+                    } catch (Exception e) {
+                        ds.setColor(0xFF4285F4);
+                    }
+                    ds.setUnderlineText(false);
+                }
+            };
 
-        spannableString.setSpan(clickableSpan, 23, 30, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        signInText.setText(spannableString);
-        signInText.setMovementMethod(LinkMovementMethod.getInstance());
+            spannableString.setSpan(clickableSpan, 23, 30, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            signInText.setText(spannableString);
+            signInText.setMovementMethod(LinkMovementMethod.getInstance());
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fallback: simple click listener
+            signInText.setOnClickListener(v -> finish());
+        }
     }
 
     private void signUpUser() {
@@ -132,15 +181,32 @@ public class SignUpActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+                        // Save user info to Firestore
+                        String userId = mAuth.getCurrentUser().getUid();
+                        Map<String, Object> user = new HashMap<>();
+                        user.put("name", fullName);
+                        user.put("email", email);
+                        user.put("createdAt", System.currentTimeMillis());
 
-                        // Navigate to HomeActivity
-                        Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
+                        db.collection("users").document(userId).set(user)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(SignUpActivity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+
+                                    Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(SignUpActivity.this, "Failed to save user data", Toast.LENGTH_SHORT).show();
+                                    // Still navigate to home even if Firestore save fails
+                                    Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                    finish();
+                                });
                     } else {
-                        Toast.makeText(SignUpActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SignUpActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
     }

@@ -49,7 +49,7 @@ public class ChatbotActivity extends AppCompatActivity {
     private ProgressDialog dialog;
 
     private Uri selectedFileUri;
-    private final String API_KEY = "AIzaSyCS_Qi0pdcZsdo43Wxvyrcrcuy1lu7Su-w";
+    private final String API_KEY = "ADD YOUR GEMINI API KEY";
 
     private final ActivityResultLauncher<Intent> filePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -60,7 +60,7 @@ public class ChatbotActivity extends AppCompatActivity {
                         String fileName = getFileName(selectedFileUri);
                         addMessage("📎 Attached: " + fileName, true);
 
-                        // Copy file and upload
+
                         try {
                             File file = copyUriToFile(selectedFileUri);
                             uploadFileToGemini(file);

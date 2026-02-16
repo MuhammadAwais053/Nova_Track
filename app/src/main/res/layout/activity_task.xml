@@ -45,7 +45,6 @@
 
         </LinearLayout>
 
-        <!-- Filter Chips -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/filterChipGroup"
             android:layout_width="match_parent"
